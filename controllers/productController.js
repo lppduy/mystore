@@ -31,6 +31,7 @@ const products = [
   }
 ];
 
+const e = require('express');
 const Products = require('../models/products');
 
 exports.renderProducts = (req, res) => {
@@ -58,8 +59,29 @@ exports.postAddProduct = (req, res) => {
 }
 
 exports.renderEditProduct = (req, res) => {
-  res.render('edit-product',
-    {
-      product: products[--req.params.id]
-    });
+  Products.fetchProductById(req.params.id)
+    .then(([productData, fieldData]) => {
+      console.log(productData[0])
+      res.render('edit-product', { product: productData[0] });
+    })
+    .catch(err => console.log(err));
+}
+
+exports.editProduct = (req, res) => {
+  const { name, price, image } = req.body;
+  const product = new Products(req.params.id, name, price, image);
+
+  product.editData()
+    .then(() => {
+      res.redirect('/');
+    })
+    .catch(err => console.log(err));
+}
+
+exports.deleteProduct = (req, res) => {
+  Products.deleteProduct(req.params.id)
+    .then(() => {
+      res.redirect('/');
+    })
+    .catch(err => console.log(err));
 }
