@@ -4,6 +4,7 @@ const home = require('./routes/home');
 const addProduct = require('./routes/addProduct');
 const editProduct = require('./routes/editProduct');
 const deleteProduct = require('./routes/deleteProduct');
+const tryCookie = require('./routes/tryCookie');
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -12,6 +13,7 @@ app.use('/', home);
 app.use('/add-product', addProduct);
 app.use('/edit-product', editProduct);
 app.use('/delete-product', deleteProduct);
+app.use('/tryCookie', tryCookie)
 
 app.use(express.static(__dirname));
 
