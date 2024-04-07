@@ -20,11 +20,34 @@ exports.registerUser = (req, res) => {
 }
 
 exports.renderLogin = (req, res) => {
-  res.render('login');
+  const cookie = req.cookies;
+  res.render('login', { isLoggedIn: cookie.isLoggedIn });
 }
 
 
 exports.validateLogin = (req, res) => {
   const { userName, password } = req.body;
-  // continue here
+
+  Users.fetchUserByUserName(userName)
+    .then(([[userCredentials], tInfo]) => {
+      if (userCredentials) {
+        if (userCredentials.password === password) {
+          res.cookie('isLoggedIn', 'true');
+          res.redirect('/');
+        } else {
+          res.cookie('isLoggedIn', 'invalidPassword');
+          res.redirect('/login');
+        }
+      } else {
+        res.cookie('isLoggedIn', 'invalidUsername');
+        res.redirect('/login');
+      }
+
+    })
 }
+
+exports.logout = (req, res) => {
+  res.cookie('isLoggedIn', 'false');
+  res.redirect('/');
+}
+

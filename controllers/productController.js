@@ -35,9 +35,17 @@ const e = require('express');
 const Products = require('../models/products');
 
 exports.renderProducts = (req, res) => {
+  // const cookie = req.get('Cookie')
+  // .split(';')[0].split('=')[1];
+  const cookie = req.cookies;
+
   Products.fetchProducts()
     .then(([rows, fieldData]) => {
-      res.render('home', { products: rows });
+      console.log(rows)
+      res.render('home', {
+        products: rows,
+        isLoggedIn: cookie.isLoggedIn
+      });
 
     })
     .catch(err => console.log(err));
