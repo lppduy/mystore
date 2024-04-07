@@ -3,6 +3,7 @@ const app = express();
 const session = require('express-session');
 const MysqlStore = require('express-mysql-session')(session);
 const JWT = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const home = require('./routes/home');
 const addProduct = require('./routes/addProduct');
@@ -43,25 +44,6 @@ app.use(session({
   saveUninitialized: false,
   store: sessionStore
 }));
-
-app.get('/tryJWT', (req, res) => {
-  const token = JWT.sign(
-    { isLoggedIn: 'true' },
-    'secretkey',
-  );
-  res.cookie('token', token);
-  res.send(token);
-});
-
-app.get('/verifyJWT', (req, res) => {
-  const token = req.get('Cookie')
-    .split('=')[1]
-    .split(';')[0];
-  const decodedToken = JWT.verify(token, 'secretkey');
-  res.send(decodedToken);
-});
-
-
 
 app.use('/', home);
 app.use('/add-product', addProduct);

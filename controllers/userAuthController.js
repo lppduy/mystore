@@ -1,15 +1,18 @@
 const Users = require('../models/users');
 const JWT = require('jsonwebtoken');
 const { tokenSignature } = require('../utils/globals');
+const bcrypt = require('bcrypt');
 
 exports.renderSignUp = (req, res, next) => {
   res.render('sign-up', { isLoggedIn: global.isLoggedIn });
 }
 
-exports.registerUser = (req, res, next) => {
+exports.registerUser = async (req, res, next) => {
   const { userName, password, confirmPassword } = req.body;
-  console.log(userName, password, confirmPassword);
-  const users = new Users(null, userName, password);
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const users = new Users(null, userName, hashedPassword);
 
   users.insertUser()
     .then(() => {
@@ -34,7 +37,9 @@ exports.validateLogin = (req, res, next) => {
   Users.fetchUserByUserName(userName)
     .then(([[userCredentials], tInfo]) => {
       if (userCredentials) {
-        if (userCredentials.password === password) {
+        const isMatch = bcrypt.compare(userCredentials.password, password);
+
+        if (isMatch) {
           const token = JWT.sign(
             { userName },
             tokenSignature
