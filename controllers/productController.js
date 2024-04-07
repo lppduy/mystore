@@ -30,9 +30,8 @@ const DUMMY_PRODUCTS = [
     img: "strawberry.jpg"
   }
 ];
-
 const Products = require('../models/products');
-
+const { deleteImage } = require('../utils/deleteImage')
 exports.renderProducts = (req, res, next) => {
   Products.fetchProducts()
     .then(([rows, fieldData]) => {
@@ -89,10 +88,31 @@ exports.editProduct = (req, res, next) => {
     .catch(err => console.log(err));
 }
 
-exports.deleteProduct = (req, res, next) => {
-  Products.deleteProduct(req.params.id)
-    .then(() => {
-      res.redirect('/');
-    })
-    .catch(err => console.log(err));
+exports.deleteProduct = async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    // Fetch the product by ID to get the image path
+    const [productRows] = await Products.fetchProductById(id);
+    const product = productRows[0];
+
+    if (!product) {
+      return res.status(404).send('Product not found');
+    }
+
+    const imagePath = product.img;
+
+    // Delete the image associated with the product
+    await deleteImage(imagePath);
+
+    // Delete the product from the database
+    await Products.deleteProduct(id);
+
+    // Redirect to home page after successful deletion
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error deleting product:', err);
+    res.redirect('/');
+  }
 }
+
