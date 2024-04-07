@@ -1,7 +1,8 @@
 const Users = require('../models/users');
 
 exports.renderSignUp = (req, res) => {
-  res.render('sign-up');
+  const cookie = req.session.isLoggedIn;
+  res.render('sign-up', { isLoggedIn: cookie });
 }
 
 exports.registerUser = (req, res) => {
@@ -11,6 +12,7 @@ exports.registerUser = (req, res) => {
 
   users.insertUser()
     .then(() => {
+      req.session.isLoggedIn = 'true';
       res.redirect('/');
     })
     .catch(err => {
@@ -20,8 +22,8 @@ exports.registerUser = (req, res) => {
 }
 
 exports.renderLogin = (req, res) => {
-  const cookie = req.cookies;
-  res.render('login', { isLoggedIn: cookie.isLoggedIn });
+  const cookie = req.session.isLoggedIn;
+  res.render('login', { isLoggedIn: cookie });
 }
 
 
@@ -32,22 +34,25 @@ exports.validateLogin = (req, res) => {
     .then(([[userCredentials], tInfo]) => {
       if (userCredentials) {
         if (userCredentials.password === password) {
-          res.cookie('isLoggedIn', 'true');
+          // res.cookie('isLoggedIn', 'true');
+          req.session.isLoggedIn = 'true';
           res.redirect('/');
         } else {
-          res.cookie('isLoggedIn', 'invalidPassword');
+          // res.cookie('isLoggedIn', 'invalidPassword');
+          req.session.isLoggedIn = 'invalidPassword';
           res.redirect('/login');
         }
       } else {
-        res.cookie('isLoggedIn', 'invalidUsername');
+        // res.cookie('isLoggedIn', 'invalidUsername');
+        req.session.isLoggedIn = 'invalidUsername';
         res.redirect('/login');
       }
-
     })
 }
 
 exports.logout = (req, res) => {
-  res.cookie('isLoggedIn', 'false');
+  // req.session.isLoggedIn = 'false';
+  req.session.destroy(req.session.id);
   res.redirect('/');
 }
 

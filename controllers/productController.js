@@ -1,4 +1,4 @@
-const products = [
+const DUMMY_PRODUCTS = [
   {
     id: 1,
     name: 'Apple',
@@ -31,29 +31,28 @@ const products = [
   }
 ];
 
-const e = require('express');
 const Products = require('../models/products');
 
 exports.renderProducts = (req, res) => {
   // const cookie = req.get('Cookie')
   // .split(';')[0].split('=')[1];
-  const cookie = req.cookies;
+  const cookie = req.session.isLoggedIn;
 
   Products.fetchProducts()
     .then(([rows, fieldData]) => {
-      console.log(rows)
       res.render('home', {
         products: rows,
-        isLoggedIn: cookie.isLoggedIn
+        isLoggedIn: cookie
       });
 
     })
     .catch(err => console.log(err));
-
 }
 
 exports.renderAddProduct = (req, res) => {
-  res.render('add-product');
+  const cookie = req.session.isLoggedIn;
+
+  res.render('add-product', { isLoggedIn: cookie });
 }
 
 exports.postAddProduct = (req, res) => {
