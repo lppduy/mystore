@@ -33,29 +33,28 @@ const DUMMY_PRODUCTS = [
 
 const Products = require('../models/products');
 
-exports.renderProducts = (req, res) => {
+exports.renderProducts = (req, res, next) => {
   // const cookie = req.get('Cookie')
   // .split(';')[0].split('=')[1];
-  const cookie = req.session.isLoggedIn;
-
+  console.log('in controller', global.isLoggedIn)
   Products.fetchProducts()
     .then(([rows, fieldData]) => {
       res.render('home', {
         products: rows,
-        isLoggedIn: cookie
+        isLoggedIn: global.isLoggedIn
       });
 
     })
     .catch(err => console.log(err));
 }
 
-exports.renderAddProduct = (req, res) => {
+exports.renderAddProduct = (req, res, next) => {
   const cookie = req.session.isLoggedIn;
 
-  res.render('add-product', { isLoggedIn: cookie });
+  res.render('add-product', { isLoggedIn: global.isLoggedIn });
 }
 
-exports.postAddProduct = (req, res) => {
+exports.postAddProduct = (req, res, next) => {
   const { name, price, image } = req.body;
   const products = new Products(null, name, price, image);
   products.postData()
@@ -65,16 +64,17 @@ exports.postAddProduct = (req, res) => {
     .catch(err => console.log(err));
 }
 
-exports.renderEditProduct = (req, res) => {
+exports.renderEditProduct = (req, res, next) => {
+
   Products.fetchProductById(req.params.id)
     .then(([productData, fieldData]) => {
       console.log(productData[0])
-      res.render('edit-product', { product: productData[0] });
+      res.render('edit-product', { product: productData[0], isLoggedIn: global.isLoggedIn });
     })
     .catch(err => console.log(err));
 }
 
-exports.editProduct = (req, res) => {
+exports.editProduct = (req, res, next) => {
   const { name, price, image } = req.body;
   const product = new Products(req.params.id, name, price, image);
 
@@ -85,7 +85,7 @@ exports.editProduct = (req, res) => {
     .catch(err => console.log(err));
 }
 
-exports.deleteProduct = (req, res) => {
+exports.deleteProduct = (req, res, next) => {
   Products.deleteProduct(req.params.id)
     .then(() => {
       res.redirect('/');

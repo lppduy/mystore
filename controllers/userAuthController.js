@@ -1,11 +1,12 @@
 const Users = require('../models/users');
+const JWT = require('jsonwebtoken');
+const { tokenSignature } = require('../utils/globals');
 
-exports.renderSignUp = (req, res) => {
-  const cookie = req.session.isLoggedIn;
-  res.render('sign-up', { isLoggedIn: cookie });
+exports.renderSignUp = (req, res, next) => {
+  res.render('sign-up', { isLoggedIn: global.isLoggedIn });
 }
 
-exports.registerUser = (req, res) => {
+exports.registerUser = (req, res, next) => {
   const { userName, password, confirmPassword } = req.body;
   console.log(userName, password, confirmPassword);
   const users = new Users(null, userName, password);
@@ -21,36 +22,37 @@ exports.registerUser = (req, res) => {
     })
 }
 
-exports.renderLogin = (req, res) => {
+exports.renderLogin = (req, res, next) => {
   const cookie = req.session.isLoggedIn;
-  res.render('login', { isLoggedIn: cookie });
+  res.render('login', { isLoggedIn: global.isLoggedIn });
 }
 
 
-exports.validateLogin = (req, res) => {
+exports.validateLogin = (req, res, next) => {
   const { userName, password } = req.body;
 
   Users.fetchUserByUserName(userName)
     .then(([[userCredentials], tInfo]) => {
       if (userCredentials) {
         if (userCredentials.password === password) {
-          // res.cookie('isLoggedIn', 'true');
-          req.session.isLoggedIn = 'true';
+          const token = JWT.sign(
+            { userName },
+            tokenSignature
+          )
+          req.session.token = token;
+          global.isLoggedIn = 'true';
           res.redirect('/');
         } else {
-          // res.cookie('isLoggedIn', 'invalidPassword');
-          req.session.isLoggedIn = 'invalidPassword';
+          global.isLoggedIn = 'false';
           res.redirect('/login');
         }
       } else {
-        // res.cookie('isLoggedIn', 'invalidUsername');
-        req.session.isLoggedIn = 'invalidUsername';
         res.redirect('/login');
       }
     })
 }
 
-exports.logout = (req, res) => {
+exports.logout = (req, res, next) => {
   // req.session.isLoggedIn = 'false';
   req.session.destroy(req.session.id);
   res.redirect('/');
