@@ -34,9 +34,6 @@ const DUMMY_PRODUCTS = [
 const Products = require('../models/products');
 
 exports.renderProducts = (req, res, next) => {
-  // const cookie = req.get('Cookie')
-  // .split(';')[0].split('=')[1];
-  console.log('in controller', global.isLoggedIn)
   Products.fetchProducts()
     .then(([rows, fieldData]) => {
       res.render('home', {
@@ -55,8 +52,13 @@ exports.renderAddProduct = (req, res, next) => {
 }
 
 exports.postAddProduct = (req, res, next) => {
-  const { name, price, image } = req.body;
+  const { name, price } = req.body;
+  const image = req.file.destination + '/' + req.file.filename;
+
+
   const products = new Products(null, name, price, image);
+
+
   products.postData()
     .then(() => {
       res.redirect('/');
@@ -75,7 +77,9 @@ exports.renderEditProduct = (req, res, next) => {
 }
 
 exports.editProduct = (req, res, next) => {
-  const { name, price, image } = req.body;
+  const { name, price } = req.body;
+  const image = req.file.destination + '/' + req.file.filename;
+
   const product = new Products(req.params.id, name, price, image);
 
   product.editData()

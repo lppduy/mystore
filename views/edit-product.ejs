@@ -14,7 +14,7 @@
   <%- include ('./includes/navbar.ejs'), {isLoggedIn:isLoggedIn} %>
 
     <div class="container-fluid mt-4 form-container">
-      <form action="/edit-product/<%= product.id %>" method="post" class="w-25">
+      <form action="/edit-product/<%= product.id %>" method="post" class="w-25" enctype="multipart/form-data">
         <h2 class="fw-bold fs-3 m-4 mb-2">Add Product</h2>
         <div class="form-control m-3 p-4">
           <!--  -->

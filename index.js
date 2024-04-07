@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const session = require('express-session');
 const MysqlStore = require('express-mysql-session')(session);
-const JWT = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const multer = require('multer')
 
 const home = require('./routes/home');
 const addProduct = require('./routes/addProduct');
@@ -44,6 +43,17 @@ app.use(session({
   saveUninitialized: false,
   store: sessionStore
 }));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './images');
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + file.originalname)
+  }
+})
+
+app.use(multer({ storage }).single('image'));
 
 app.use('/', home);
 app.use('/add-product', addProduct);

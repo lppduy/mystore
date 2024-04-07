@@ -13,7 +13,6 @@ exports.auth = (req, res, next) => {
     try {
       const decodedToken = JWT.verify(token, tokenSignature);
       global.isloggedIn = 'true';
-      console.log('in middleware', global.isloggedIn)
     } catch (error) {
       if (global.isLoggedIn === 'init') {
         next();
