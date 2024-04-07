@@ -18,3 +18,13 @@ exports.registerUser = (req, res) => {
       res.redirect('/sign-up');
     })
 }
+
+exports.renderLogin = (req, res) => {
+  res.render('login');
+}
+
+
+exports.validateLogin = (req, res) => {
+  const { userName, password } = req.body;
+  // continue here
+}
